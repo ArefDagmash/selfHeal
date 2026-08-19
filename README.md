@@ -18,16 +18,6 @@ flowchart LR
     RUN -.AI suggestion.-> LLM[(Ollama / Anthropic)]
 ```
 
-Plain version:
-
-```
- Mock API (system under test)  ──►  Go test runner  ──►  WebSocket hub (:8080)
-                                          │                    │
-                                   SQLite (history)     React dashboard (:5173)
-                                          │
-                                    Ollama / Anthropic  (failure suggestions)
-```
-
 ## Quick start (Docker)
 
 ```bash
@@ -98,20 +88,3 @@ neither set, AI is skipped.
 via `browser-actions/setup-chrome`), builds the dashboard, runs the suite,
 and fails the build if the pass rate drops below `PASS_THRESHOLD`.
 `SHOWCASE_FAILURES` is unset in CI so the suite stays green.
-
-## Project layout
-
-```
-cmd/testforge   entrypoint: mock API + WS server + suite + persistence
-cmd/mockapi     standalone "system under test" service
-runner/         API + UI runners, retry, sequential suite, DOM healing
-events/         the shared TestEvent contract
-server/         WebSocket pub-sub hub
-storage/        SQLite persistence
-ai/             failure suggestions + run summaries (Ollama / Anthropic)
-mockapi/        in-process mock API (fixed status codes + demo shop page)
-dashboard/      React + Vite mindmap dashboard
-docker/         Go service Dockerfile
-dashboard/Dockerfile
-docker-compose.yml
-```
