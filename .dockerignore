@@ -1,0 +1,19 @@
+# Don't ship local deps / build output into the Docker build context.
+node_modules
+dashboard/node_modules
+dashboard/dist
+dist
+
+# Local data + databases
+data
+*.db
+*.db-*
+
+# VCS and docs
+.git
+docs
+*.md
+
+# Local env
+.env
+.env.local

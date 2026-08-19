@@ -1,0 +1,416 @@
+:root {
+  --bg: #0f1115;
+  --fg: #e8eaed;
+  --muted: #8b9099;
+  --ring: #2a2f3a;
+  --accent: #3b82f6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.stage {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+}
+
+.conn {
+  position: fixed;
+  top: 16px;
+  right: 18px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.conn[data-on="true"] {
+  color: #22c55e;
+}
+
+.conn[data-on="false"] {
+  color: #f59e0b;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: 2px solid var(--ring);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.idle-icon {
+  color: var(--muted);
+  font-size: 28px;
+}
+
+.icon.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.detail {
+  font-size: 13px;
+  color: var(--muted);
+  min-height: 16px;
+  text-align: center;
+  max-width: 520px;
+}
+
+/* Healed detail line: old selector muted + struck through, new in accent. */
+.old-sel {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.arrow {
+  color: var(--muted);
+}
+
+.new-sel {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* AI-suggested fix for a failed test: kept on one line, ellipsized. */
+.ai-sel {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+  color: var(--fg);
+}
+
+/* History trail: a thin row of small dots. */
+.trail {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 7px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.dot.ring {
+  box-shadow: 0 0 0 2px rgba(232, 234, 237, 0.55);
+}
+
+/* Running totals: three plain numbers, no cards, no borders. */
+.counts {
+  display: flex;
+  gap: 18px;
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+/* ---- view toggle ---- */
+
+.view-toggle {
+  position: fixed;
+  top: 14px;
+  left: 18px;
+  display: flex;
+  gap: 6px;
+  background: #171a21;
+  border: 1px solid var(--ring);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.view-toggle button {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.view-toggle button[data-active="true"] {
+  background: var(--ring);
+  color: var(--fg);
+}
+
+/* ---- mindmap ---- */
+
+.mindmap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.mindmap-svg {
+  width: min(96vw, 1300px);
+  height: auto;
+  overflow: visible;
+}
+
+.edge {
+  fill: none;
+  stroke: var(--ring);
+  stroke-width: 2;
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 0;
+  opacity: 0.35;
+  transition: opacity 0.4s ease;
+}
+
+.edge-in {
+  opacity: 0.7;
+  animation: draw-edge 0.6s ease-out both;
+}
+
+.edge-hot {
+  stroke: #f59e0b;
+  stroke-width: 2.5;
+  opacity: 0.95;
+}
+
+.edge-pending {
+  stroke: var(--muted);
+  stroke-dasharray: 5 5;
+  animation: draw-edge 0.6s ease-out both, edge-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes edge-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes draw-edge {
+  from {
+    stroke-dashoffset: 1400;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.hub-dot {
+  fill: var(--accent);
+}
+
+.hub-live .hub-dot {
+  fill: #22c55e;
+}
+
+.hub-ring {
+  fill: none;
+  stroke: var(--ring);
+  stroke-width: 1.5;
+}
+
+.hub-pulse {
+  fill: none;
+  stroke: #22c55e;
+  stroke-width: 2;
+  animation: hub-pulse 0.9s ease-out;
+}
+
+@keyframes hub-pulse {
+  from {
+    r: 20;
+    opacity: 0.9;
+  }
+  to {
+    r: 46;
+    opacity: 0;
+  }
+}
+
+.node {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 14px;
+  border: 1.5px solid var(--ring);
+  background: #171a21;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 10px;
+  text-align: center;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.pop-in,
+.slot-node {
+  animation: pop-in 0.45s ease-out both;
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.75) translateY(8px);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.04) translateY(-2px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.node-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.node-detail {
+  font-size: 13px;
+  color: var(--fg);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.node-heal {
+  font-size: 10px;
+  color: var(--muted);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.node-suggestion {
+  font-style: italic;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+.fix-node .node-label {
+  color: var(--accent);
+}
+
+.summary-node {
+  border-color: var(--ring);
+}
+
+.summary-node .node-label {
+  color: #f59e0b;
+}
+
+.summary-node-active {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+}
+
+.summary-node .node-detail {
+  white-space: normal;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow: visible;
+  animation: report-fade 0.4s ease-out both;
+}
+
+.summary-node:not(.summary-node-active) .node-detail {
+  animation: report-fade 0.4s ease-out both, waiting-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes report-fade {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes waiting-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.mindmap-counts {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dot-key {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.dot-key:first-child {
+  margin-left: 0;
+}

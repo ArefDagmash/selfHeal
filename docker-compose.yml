@@ -1,0 +1,34 @@
+# Build context is the project root.
+services:
+  testforge:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      # Host port 8080 is often taken (e.g. by Spark); publish on 18080.
+      - "18080:18080"
+    volumes:
+      # Persist the SQLite database across container restarts.
+      - ./data:/data
+    environment:
+      # Optional AI provider. Leave blank to disable AI suggestions.
+      # - Local Ollama: set OLLAMA_MODEL (and OLLAMA_BASE_URL if not default).
+      # - Anthropic: set ANTHROPIC_API_KEY.
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # Include the intentional failures so the demo shows retry / healing / AI
+      # suggestions. CI leaves this unset to keep the suite green.
+      - SHOWCASE_FAILURES=${SHOWCASE_FAILURES:-1}
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - testforge
+    environment:
+      # Point the browser at the Go WS server (host's published port).
+      - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:18080/ws}

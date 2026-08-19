@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # Headless Chrome for the chromedp UI tests + the live suite.
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
+        id: setup-chrome
+
+      - name: Export Chrome path
+        run: echo "CHROME_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
+
+      - name: Go vet
+        run: go vet ./...
+
+      - name: Go test
+        run: go test ./...
+
+      - name: Dashboard build
+        working-directory: dashboard
+        run: npm ci && npm run build
+
+      # Run the suite headlessly. SHOWCASE_FAILURES is left unset so CI runs the
+      # clean suite; PASS_THRESHOLD (default 80% in CI) fails the job if the pass
+      # rate drops. Healed counts as a pass.
+      - name: Run suite
+        run: go run ./cmd/testforge
+        env:
+          PASS_THRESHOLD: "80"
+
+      - name: Upload SQLite DB
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testforge-db
+          path: testforge.db
